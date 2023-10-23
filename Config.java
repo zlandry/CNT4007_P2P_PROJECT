@@ -113,10 +113,6 @@ public class Config {
 		if(peerinfo.exists())
 		{
 			Scanner scanner = new Scanner(common);
-			while(scanner.hasNextLine())
-			{
-
-			}
 			scanner.close();
 		}
 		else

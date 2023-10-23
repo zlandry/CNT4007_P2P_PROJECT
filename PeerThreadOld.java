@@ -2,20 +2,20 @@ import java.util.*;
 import java.io.*;
 import java.security.*;
 
-public class PeerThread extends Thread {
+public class PeerThreadOld extends Thread {
     int id;
     String hostname;
     int port;
     int hasFile;
 
-    PeerThread() {
+    PeerThreadOld() {
         id = 0000;
         hostname = "lin114-00.cise.ufl.edu";
         port = 2020;
         hasFile = 0;
     }
 
-    PeerThread(DummyPeer peer) {
+    PeerThreadOld(DummyPeer peer) {
         this.id = peer.id;
         this.hostname = peer.hostname;
         this.port = peer.port;
@@ -69,7 +69,7 @@ class Multithread {
     public static void main(String[] args) {
         int n = 8;
         for (int i = 0; i < n; i++) {
-            PeerThread object = new PeerThread();
+            PeerThreadOld object = new PeerThreadOld();
             object.start();
         }
         
