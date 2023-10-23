@@ -62,6 +62,7 @@ public class Config {
 				int spacePos = line.indexOf(' ');
 				String substr = line.substring(0, spacePos);
 				String remainder = line.substring(spacePos, line.length());
+				remainder = remainder.trim();
 
 				switch(substr)
 				{
@@ -99,12 +100,12 @@ public class Config {
 		else
 		{
 			FileWriter writer = new FileWriter("Common.cfg");
-			writer.write("NumberOfPreferredNeighbors 2");
-			writer.write("UnchokingInterval 5");
-			writer.write("OptimisticUnchokingInterval 15");
-			writer.write("FileName TheFile.dat");
-			writer.write("FileSize 10000232");
-			writer.write("PieceSize 32768");
+			writer.write("NumberOfPreferredNeighbors 2\n");
+			writer.write("UnchokingInterval 5\n");
+			writer.write("OptimisticUnchokingInterval 15\n");
+			writer.write("FileName TheFile.dat\n");
+			writer.write("FileSize 10000232\n");
+			writer.write("PieceSize 32768\n");
 			writer.close();
 		}
 
@@ -121,12 +122,12 @@ public class Config {
 		else
 		{
 			FileWriter writer = new FileWriter("PeerInfo.cfg");
-			writer.write("NumberOfPreferredNeighbors 2");
-			writer.write("UnchokingInterval 5");
-			writer.write("OptimisticUnchokingInterval 15");
-			writer.write("FileName TheFile.dat");
-			writer.write("FileSize 10000232");
-			writer.write("PieceSize 32768");
+			writer.write("NumberOfPreferredNeighbors 2\n");
+			writer.write("UnchokingInterval 5\n");
+			writer.write("OptimisticUnchokingInterval 15\n");
+			writer.write("FileName TheFile.dat\n");
+			writer.write("FileSize 10000232\n");
+			writer.write("PieceSize 32768\n");
 			writer.close();
 		}
 	}
