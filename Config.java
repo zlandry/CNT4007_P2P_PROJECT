@@ -62,8 +62,9 @@ public class Config {
 				int spacePos = line.indexOf(' ');
 				String substr = line.substring(0, spacePos);
 				String remainder = line.substring(spacePos, line.length());
+				//System.out.println("|" + remainder + "|");
 				remainder = remainder.trim();
-
+				System.out.println("|" + remainder + "|");
 				switch(substr)
 				{
 					case "NumberOfPreferredNeighbors":
