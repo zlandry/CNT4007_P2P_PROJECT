@@ -40,6 +40,8 @@ class DummyPeer {
 
 public class Config {
 
+	static boolean VERBOSE = true;
+
 	static int prefNeighborCount;
 	static int unchokeIntv;
 	static int optmUnchokeIntv;
@@ -59,9 +61,13 @@ public class Config {
 		writer.write("FileSize 10000232\n");
 		writer.write("PieceSize 32768\n");
 		writer.close();
-	
-		System.out.println("Default Common.cfg file created.\n");
-		System.out.println("You may want to update the settings to better match what you maybe looking for.");
+		
+		if(VERBOSE)
+		{
+			System.out.println("Default Common.cfg file created.\n");
+			System.out.println("You may want to update the settings to better match what you maybe looking for.");
+		}
+
 	}
 
 	public static void initalizePeerInfo() throws Exception{
@@ -71,8 +77,11 @@ public class Config {
 		writer.write("1003 lin114-00.cise.ufl.edu 6008 0\n");
 		writer.close();
 
-		System.out.println("Default PeerInfo.cfg file created.\n");
-		System.out.println("You may want to update the settings to better match the peers you plan on engaging with.");
+		if(VERBOSE)
+		{
+			System.out.println("Default PeerInfo.cfg file created.\n");
+			System.out.println("You may want to update the settings to better match the peers you plan on engaging with.");
+		}
 	}
 
 	public static void main(String[] args) throws Exception
@@ -80,91 +89,219 @@ public class Config {
 		File common = new File("Common.cfg");
 		if(common.exists())
 		{
+			if(VERBOSE)
+			{
+				System.out.println("Found Common.cfg. Reading...");
+			}
+
 			Scanner scanner = new Scanner(common);
 			boolean correct = true;
-			while(scanner.hasNextLine() && correct)
+			
+			while(correct && scanner.hasNextLine())
 			{
+				
 				String line = scanner.nextLine();
 
 				int spacePos = line.indexOf(' ');
 				String substr = line.substring(0, spacePos);
 				String remainder = line.substring(spacePos, line.length());
+
 				remainder = remainder.trim();
-
-				//System.out.println("|" + remainder + "|");
-				switch(substr)
+				
+				if(VERBOSE)
 				{
-					case "NumberOfPreferredNeighbors":
-						prefNeighborCount = Integer.parseInt(remainder);
-						break;
-					
-					case "UnchokingInterval" :
-						unchokeIntv = Integer.parseInt(remainder);
-						break;
-
-					case "OptimisticUnchokingInterval":
-						optmUnchokeIntv = Integer.parseInt(remainder);
-						break;
-
-					case "FileName":
-						fileName = remainder;
-						break;
-
-					case "FileSize":
-						fileSize = Integer.parseInt(remainder);
-						break;
-					
-					case "PieceSize":
-						pieceSize = Integer.parseInt(remainder);
-						break;
-
-					default:
-						System.out.println("Common.cfg is malformed - " + line + " is not formatted correctly.");
-						File oldfile = new File("Common.cfg.old");
-						correct = false;
-						break;
+					System.out.println("Reading in " + substr + " with value \'" + remainder + "\'");
 				}
+				try{
 
+					switch(substr)
+					{
+						case "NumberOfPreferredNeighbors":
+							prefNeighborCount = Integer.parseInt(remainder);
+							break;
+					
+						case "UnchokingInterval" :
+							unchokeIntv = Integer.parseInt(remainder);
+							break;
+
+						case "OptimisticUnchokingInterval":
+							optmUnchokeIntv = Integer.parseInt(remainder);
+							break;
+
+						case "FileName":
+							fileName = remainder;
+							break;
+						
+						case "FileSize":
+							fileSize = Integer.parseInt(remainder);
+							break;
+					
+						case "PieceSize":
+							pieceSize = Integer.parseInt(remainder);
+							break;
+
+						default:
+							System.out.println("Common.cfg is malformed - the line \'" + line + "\' is not formatted correctly.");
+
+							scanner.close();
+
+							File oldfile = new File("Common.cfg.old");
+							if(oldfile.exists())
+							{
+								oldfile.delete();
+								if(VERBOSE)
+								{
+									System.out.println("Deleting old Common.cfg.old.");
+								}
+							}
+
+							boolean success = common.renameTo(oldfile);
+
+							if(success){
+								System.out.println("Successfully renamed invalid Common.cfg to Common.cfg.old. Generating default Common.cfg...");
+								initalizeCommon();
+							}
+							else
+							{
+								System.out.println("Failed to rename invalid Common.cfg. You may need to delete it yourself.");
+							}
+
+							correct = false;
+							break;
+					}
+				}
+				catch(Exception e)
+				{
+					if(VERBOSE)
+					{
+						System.out.println("Catching exception, closing scanner...");
+					}
+					scanner.close();
+					System.out.println("Common.cfg is malformed - the line \'" + line + "\' is not formatted correctly.");
+
+					File oldfile = new File("Common.cfg.old");
+					boolean success = common.renameTo(oldfile);
+
+					if(success){
+						System.out.println("Successfully renamed invalid Common.cfg to Common.cfg.old. Generating default Common.cfg...");
+						initalizeCommon();
+					}
+					else
+					{
+						System.out.println("Failed to rename invalid Common.cfg. You may need to delete it yourself.");
+					}
+
+					correct = false;
+				}
+				finally
+				{
+
+				}
 			}
-			if(!correct){
-				initalizeCommon();
+
+			if(correct)
+			{
+				scanner.close();
 			}
-			scanner.close();
+			
+			if(VERBOSE)
+			{
+				System.out.println("Finished reading peers from Common.cfg.\n");
+			}
+
 		}
 		else
 		{
+			System.out.println("PeerInfo.cfg does not exist - Generating default Common.cfg...");
 			initalizeCommon();
 		}
 
 		File peerinfo = new File("PeerInfo.cfg");
-		DummyPeer[] peertemp = new DummyPeer[1];
+		List<DummyPeer> peerArray = new ArrayList<DummyPeer>();
+
 		if(peerinfo.exists())
 		{
+			if(VERBOSE)
+			{
+				System.out.println("Found PeerInfo.cfg. Reading...");
+			}
+
 			Scanner scanner = new Scanner(peerinfo);
-			while(scanner.hasNextLine())
+			boolean correct = true;
+
+			while(correct && scanner.hasNextLine())
 			{
 				String line = scanner.nextLine();
 				String[] parts = line.split(" ", 4);
-				//System.out.println("parts: " + parts);
-				//foreach()
-				System.out.println("|0|" + parts[0]);
-				System.out.println("|1|" + parts[1]);
-				System.out.println("|2|" + parts[2]);
-				System.out.println("|3|" + parts[3]);
-				try{
+
+				try
+				{
+					int pid = Integer.parseInt(parts[0]);
+					String name = parts[1];
+					int port = Integer.parseInt(parts[2]);
+					int has = Integer.parseInt(parts[3]);
+
+					DummyPeer temp = new DummyPeer(pid, name, port, has);
+					peerArray.add(temp);
+					if(VERBOSE)
+					{
+						System.out.println("Added peer - " );
+						temp.all_out();
+					}
+				}
+				catch(Exception e)
+				{
+					if(VERBOSE)
+					{
+						System.out.println("Catching exception, closing scanner...");
+					}
+					scanner.close();
+					System.out.println("PeerInfo.cfg is malformed - the line \'" + line + "\' is not formatted correctly.");
+
+					File oldfile = new File("PeerInfo.cfg.old");
+					if(oldfile.exists())
+					{
+						oldfile.delete();
+						if(VERBOSE)
+						{
+							System.out.println("Deleting old PeerInfo.cfg.old.");
+						}
+					}
+					
+					boolean success = peerinfo.renameTo(oldfile);
+
+					if(success){
+						System.out.println("Successfully renamed invalid PeerInfo.cfg to PeerInfo.cfg.old. Generating default PeerInfo.cfg...");
+						initalizePeerInfo();
+					}
+					else
+					{
+						System.out.println("Failed to rename invalid PeerInfo.cfg. You may need to delete it yourself.");
+					}
+
+					correct = false;
 
 				}
+				finally
+				{
+					
+				}
 			}
-			scanner.close();
+
+			if(correct)
+			{
+				scanner.close();
+
+				if(VERBOSE)
+				{
+					System.out.println("Finished reading peers from PeerInfo. Found " + peerArray.size() + " entries.\n");
+				}
+			}
 		}
 		else
 		{
-			FileWriter writer = new FileWriter("PeerInfo.cfg");
-			writer.write("1001 lin114-00.cise.ufl.edu 6008 1\n");
-			writer.write("1002 lin114-00.cise.ufl.edu 6008 0\n");
-			writer.write("1003 lin114-00.cise.ufl.edu 6008 0\n");
-			writer.close();
+			System.out.println("PeerInfo.cfg does not exist - Generating default PeerInfo.cfg...");
+			initalizePeerInfo();
 		}
 	}
-
 }
