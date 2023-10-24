@@ -1,7 +1,8 @@
 package MessageTypes;
 
-public class Handshake extends Message{
-    
+public class Handshake extends Message
+{
+
     int peerID;
 
     public Handshake(int id)
