@@ -50,7 +50,7 @@ public class Config {
 	static int fileSize;
 	static int pieceSize;
 
-	static DummyPeer[] peers;
+	static List<DummyPeer> peers;
 
 	public static void initalizeCommon() throws Exception{
 		FileWriter writer = new FileWriter("Common.cfg");
@@ -64,8 +64,8 @@ public class Config {
 		
 		if(VERBOSE)
 		{
-			System.out.println("Default Common.cfg file created.\n");
-			System.out.println("You may want to update the settings to better match what you maybe looking for.");
+			System.out.println("Default Common.cfg file created.");
+			System.out.println("You may want to update the settings to better match what you maybe looking for.\n");
 		}
 
 	}
@@ -79,8 +79,8 @@ public class Config {
 
 		if(VERBOSE)
 		{
-			System.out.println("Default PeerInfo.cfg file created.\n");
-			System.out.println("You may want to update the settings to better match the peers you plan on engaging with.");
+			System.out.println("Default PeerInfo.cfg file created.");
+			System.out.println("You may want to update the settings to better match the peers you plan on engaging with.\n");
 		}
 	}
 
@@ -112,15 +112,15 @@ public class Config {
 				{
 					System.out.println("Reading in " + substr + " with value \'" + remainder + "\'");
 				}
-				try{
-
+				try
+				{
 					switch(substr)
 					{
 						case "NumberOfPreferredNeighbors":
 							prefNeighborCount = Integer.parseInt(remainder);
 							break;
 					
-						case "UnchokingInterval" :
+						case "UnchokingInterval":
 							unchokeIntv = Integer.parseInt(remainder);
 							break;
 
@@ -271,8 +271,9 @@ public class Config {
 					boolean success = peerinfo.renameTo(oldfile);
 
 					if(success){
-						System.out.println("Successfully renamed invalid PeerInfo.cfg to PeerInfo.cfg.old. Generating default PeerInfo.cfg...");
+						System.out.println("Successfully renamed invalid PeerInfo.cfg to PeerInfo.cfg.old. Generating default PeerInfo.cfg...\n");
 						initalizePeerInfo();
+						System.out.println("Did not populate peer list with peers from PeerInfo.cfg. Run this program again to do so.");
 					}
 					else
 					{
@@ -296,12 +297,15 @@ public class Config {
 				{
 					System.out.println("Finished reading peers from PeerInfo. Found " + peerArray.size() + " entries.\n");
 				}
+
+				peers = peerArray;
 			}
 		}
 		else
 		{
-			System.out.println("PeerInfo.cfg does not exist - Generating default PeerInfo.cfg...");
+			System.out.println("PeerInfo.cfg does not exist - Generating default PeerInfo.cfg...\n");
 			initalizePeerInfo();
+			System.out.println("Did not populate peer list with peers from PeerInfo.cfg. Run this program again to do so.");
 		}
 	}
 }
