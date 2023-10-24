@@ -4,7 +4,8 @@ import java.io.*;
 //import java.nio.channels.*;
 import java.util.*;
 //import java.lang.*;
-
+import peer_class_files.*;
+/* 
 class DummyPeer {
     int id;
     String hostname;
@@ -38,10 +39,13 @@ class DummyPeer {
     }
 }
 
+*/
+
 public class Config {
 
 	static boolean VERBOSE = true;
 
+	 
 	static int prefNeighborCount;
 	static int unchokeIntv;
 	static int optmUnchokeIntv;
@@ -49,8 +53,10 @@ public class Config {
 	static String fileName;
 	static int fileSize;
 	static int pieceSize;
-
-	static List<DummyPeer> peers;
+ 
+	static CommonBlock commonBlock;
+	static List<PeerInfoBlock> peerInfoBlock;
+	static List<PeerProcess> peers;
 
 	public static void initalizeCommon() throws Exception{
 		FileWriter writer = new FileWriter("Common.cfg");
@@ -83,6 +89,44 @@ public class Config {
 			System.out.println("You may want to update the settings to better match the peers you plan on engaging with.\n");
 		}
 	}
+
+	private static void buildPeerDirectory(PeerProcess pp) throws Exception{
+		if(VERBOSE){
+			System.out.println("Building directory for peer "+pp.getPeerId()+"...");
+		}
+		File thisDirectory = new File("peer_"+pp.getPeerId());
+		if(!thisDirectory.exists()){
+			if(!thisDirectory.mkdir()) throw new Exception("Failed to build directory for process "+pp.getPeerId());
+		}
+		if(VERBOSE){
+			System.out.println("Success");
+		}
+	}
+
+	//creates the list of peerProcesses and builds a directory for each of them to write their log files to
+	private static void buildPeerArray() throws Exception{
+		if(VERBOSE){
+			System.out.println("Building Peer Processes...");
+		}
+		peers = new ArrayList<PeerProcess>(); 
+		for(PeerInfoBlock p:peerInfoBlock){
+			peers.add(new PeerProcess(peerInfoBlock, p.getPeerId(), commonBlock));
+			buildPeerDirectory(peers.get(peers.size()-1));
+		}
+
+	}
+
+	private static void initializePeerProcesses() throws Exception{
+		if(VERBOSE){
+			System.out.println("Initializing Peer Processes...");
+		}; 
+		for(PeerProcess p:peers){
+			p.initializePeerProcess();
+		}
+
+	}
+
+
 
 	public static void main(String[] args) throws Exception
 	{
@@ -195,7 +239,7 @@ public class Config {
 				}
 				finally
 				{
-
+					
 				}
 			}
 
@@ -216,8 +260,10 @@ public class Config {
 			initalizeCommon();
 		}
 
+		commonBlock = new CommonBlock(prefNeighborCount,unchokeIntv,optmUnchokeIntv,fileName,fileSize,pieceSize);
+
 		File peerinfo = new File("PeerInfo.cfg");
-		List<DummyPeer> peerArray = new ArrayList<DummyPeer>();
+		peerInfoBlock = new ArrayList<PeerInfoBlock>();
 
 		if(peerinfo.exists())
 		{
@@ -241,12 +287,12 @@ public class Config {
 					int port = Integer.parseInt(parts[2]);
 					int has = Integer.parseInt(parts[3]);
 
-					DummyPeer temp = new DummyPeer(pid, name, port, has);
-					peerArray.add(temp);
+					//DummyPeer temp = new DummyPeer(pid, name, port, has);
+					peerInfoBlock.add(new PeerInfoBlock(pid, name, port, (has==1) ));
 					if(VERBOSE)
 					{
-						System.out.println("Added peer - " );
-						temp.all_out();
+						System.out.println("Added peer - " + pid + " from peer info file" );
+						//temp.all_out();
 					}
 				}
 				catch(Exception e)
@@ -295,10 +341,11 @@ public class Config {
 
 				if(VERBOSE)
 				{
-					System.out.println("Finished reading peers from PeerInfo. Found " + peerArray.size() + " entries.\n");
+					System.out.println("Finished reading peers from PeerInfo. Found " + peerInfoBlock.size() + " entries.\n");
 				}
 
-				peers = peerArray;
+				buildPeerArray();
+				initializePeerProcesses();
 			}
 		}
 		else
