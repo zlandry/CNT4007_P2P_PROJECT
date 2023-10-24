@@ -8,9 +8,16 @@ import java.util.*;
 
 public class Server {
 
-	private static final int sPort = 8000;   //The server will be listening on this port number
+	int sPort = 8000;   //The server will be listening on this port number
 
-	public static void main(String[] args) throws Exception {
+	Server(int port) {
+		this.sPort = port;
+	}
+
+
+
+
+	public void main(String[] args) throws Exception {
 		System.out.println("The server is running."); 
         	ServerSocket listener = new ServerSocket(sPort);
 		int clientNum = 1;

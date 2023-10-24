@@ -55,7 +55,8 @@ public class Peer {
 		try{
 			Thread serverThread = new Thread(() -> {
 				try {
-					Server.main(new String[] {});
+					Server server = new Server(port);
+					server.main(new String[] {});
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

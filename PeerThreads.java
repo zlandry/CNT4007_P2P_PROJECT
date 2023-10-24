@@ -6,6 +6,16 @@ class MultiPeer extends Thread {
     public Peer getPeer() {
         return peer;
     }
+
+    int port;
+
+    MultiPeer() {
+        this.port = 8000;
+    }
+
+    MultiPeer(int port) {
+        this.port = port;
+    }
     
     public void run()
     {
@@ -14,7 +24,7 @@ class MultiPeer extends Thread {
             System.out.println(
                 "Thread " + Thread.currentThread().getId()
                 + " is running");
-                peer = new Peer((int)Thread.currentThread().getId(), "localhost", 8000);
+                peer = new Peer((int)Thread.currentThread().getId(), "localhost", port);
                 peer.run();
         }
         catch (Exception e) {
@@ -30,9 +40,11 @@ public class PeerThreads {
         MultiPeer[] threads = new MultiPeer[n];
 
         //init thread
+        int port = 8000;
         for (int i = 0; i < n; i++) {
-            threads[i] = new MultiPeer();
+            threads[i] = new MultiPeer(port);
             threads[i].start();
+            port++;
         }
 
             //poll for peer completion
