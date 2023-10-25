@@ -14,10 +14,10 @@ public class Server {
 		this.sPort = port;
 	}
 
+	
 
 
-
-	public void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		System.out.println("The server is running."); 
         	ServerSocket listener = new ServerSocket(sPort);
 		int clientNum = 1;
