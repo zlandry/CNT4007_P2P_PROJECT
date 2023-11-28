@@ -7,6 +7,7 @@ public class Handshake extends Message
 
     public Handshake(int id)
     {
+        length = 32;
         type = Type.HANDSHAKE;
         peerID = id;
         setupPayload();
@@ -28,12 +29,13 @@ public class Handshake extends Message
             message[i] = (byte)0;
         }
 
-        String str = String.valueOf(peerID);
-
-        for(int i = 0; i < str.length(); ++i)
+        for(int i = 0; i < 4; ++i)
         {
-            message[i] = (byte)str.charAt(i);
+            //message[i] = (byte)str.charAt(i);
+            message[i + 28] = (byte)(peerID >>> i * 8);
         }
+
+
         payload = message;
     }
 
