@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import MessageTypes.Handshake;
 
@@ -20,6 +21,8 @@ public class PeerProcess {
     private String peerLogDirectory;
     private String peerLogFile;
     private Handshake handshake;
+
+    private static boolean VERBOSE = true;
     
     CommonBlock commonBlock;
     //unchokingInterval, optimisticUnchokingInterval, NumberOfPreferredNeighbors, fileName, fileSize, and pieceSize can all be pulled from commonBlock
@@ -39,35 +42,11 @@ public class PeerProcess {
     //tracks how many peices of the file the peer has gathered. Updated by downloading a piece from another peer
     int numberOfPieces = 0;
 
-    public PeerProcess(List<PeerInfoBlock> peerInfo, int peerId, CommonBlock commonBlock) throws Exception{
-        this.peerInfo=peerInfo;
-        this.peerId = peerId;
+    public PeerProcess(int pid) throws Exception{
+        this.peerId = pid;
 
-        peerLogDirectory = new String("peer_"+peerId);
+        peerLogDirectory = new String("peer_"+ this.peerId);
         peerLogFile = new String("log_peer_"+peerId+".log");
-
-        PeerInfoBlock thisPeer = null;
-        //find the info block for this process
-        for(PeerInfoBlock b: peerInfo){
-            if(b.peerId == this.peerId){
-                thisPeer = b;
-            }
-        }
-
-        if (thisPeer == null) throw new Exception("Construction of peer process failed: could not match PeerID to one in the peer info list");
-
-        this.commonBlock = commonBlock;
-        fileTracker = new byte[(commonBlock.fileSize/8)+1];
-
-        //peer checks info block to see if it has the entire file. If it does, fill its filetracker array
-        if(thisPeer.hasFile){
-            for(int i=0;i<fileTracker.length;++i){
-                fileTracker[i]=0xF;
-            }
-        }
-
-        handshake = new Handshake(peerId);
-
         /*
         //peer constructs it's handshake message in the handshake byte array
         String handshakeStarter = "P2PFILESHARINGPROJ";
@@ -80,6 +59,22 @@ public class PeerProcess {
             handshake[i+28] = (byte) (peerId >> ( (2*(3-i))*4));
         }
         */
+    }
+
+    public void setCommonBlock(CommonBlock cb){
+        this.commonBlock = cb;
+    }
+
+    public void setPeerInfoBlock(List<PeerInfoBlock> pib){
+        this.peerInfo = pib;
+    }
+
+    public void clearPreferredNeighbors(){
+        preferredNeighbors.clear();
+    }
+
+    public void setPreferredNeighbors(int newNeighberPeerId){
+        preferredNeighbors.add(newNeighberPeerId);
     }
 
     private boolean checkHasData(int position){
@@ -104,7 +99,8 @@ public class PeerProcess {
 
     }
 
-    //write to log needs access to time of some sort for logging
+    //write to log which is used by all logging functions
+    //all log messages start with a timestamp, the rest of the string is left up to the functions
 
     private void writeToLog(String logMessage){
         try{
@@ -258,6 +254,8 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
+    
+
 
 
     public void initializePeerProcess(){
@@ -277,5 +275,246 @@ public class PeerProcess {
         }
         writeToLog("First log message for peer "+this.peerId);
     }
+
+    public void buildPeerProcess() throws Exception{
+        int prefNeighborCount = 0;
+        int unchokeIntv = 0;
+        int optmUnchokeIntv = 0;
+        int fileSize = 0;
+        int pieceSize = 0;
+        String fileName = "";
+
+        File common = new File("Common.cfg");
+		if(common.exists())
+		{
+			if(VERBOSE)
+			{
+				System.out.println("Found Common.cfg. Reading...");
+			}
+
+			Scanner scanner = new Scanner(common);
+			boolean correct = true;
+			
+			while(correct && scanner.hasNextLine())
+			{
+				
+				String line = scanner.nextLine();
+
+				int spacePos = line.indexOf(' ');
+				String substr = line.substring(0, spacePos);
+				String remainder = line.substring(spacePos, line.length());
+
+				remainder = remainder.trim();
+				
+				if(VERBOSE)
+				{
+					System.out.println("Reading in " + substr + " with value \'" + remainder + "\'");
+				}
+				try
+				{
+					switch(substr)
+					{
+						case "NumberOfPreferredNeighbors":
+							prefNeighborCount = Integer.parseInt(remainder);
+							break;
+					
+						case "UnchokingInterval":
+							unchokeIntv = Integer.parseInt(remainder);
+							break;
+
+						case "OptimisticUnchokingInterval":
+							optmUnchokeIntv = Integer.parseInt(remainder);
+							break;
+
+						case "FileName":
+							fileName = remainder;
+							break;
+						
+						case "FileSize":
+							fileSize = Integer.parseInt(remainder);
+							break;
+					
+						case "PieceSize":
+							pieceSize = Integer.parseInt(remainder);
+							break;
+
+						default:
+							System.out.println("Common.cfg is malformed - the line \'" + line + "\' is not formatted correctly.");
+
+							scanner.close();
+					}
+				}
+				catch(Exception e)
+				{
+					if(VERBOSE)
+					{
+						System.out.println("Catching exception, closing scanner...");
+					}
+					scanner.close();
+					System.out.println("Common.cfg is malformed - the line \'" + line + "\' is not formatted correctly.");
+
+				}
+				finally
+				{
+					
+				}
+			}
+
+			if(correct)
+			{
+				scanner.close();
+			}
+			
+			if(VERBOSE)
+			{
+				System.out.println("Finished reading peers from Common.cfg.\n");
+			}
+
+		}
+
+		this.setCommonBlock(new CommonBlock(prefNeighborCount,unchokeIntv,optmUnchokeIntv,fileName,fileSize,pieceSize));
+
+		File peerinfo = new File("PeerInfo.cfg");
+		this.setPeerInfoBlock(new ArrayList<PeerInfoBlock>());
+
+		if(peerinfo.exists())
+		{
+			if(VERBOSE)
+			{
+				System.out.println("Found PeerInfo.cfg. Reading...");
+			}
+
+			Scanner scanner = new Scanner(peerinfo);
+			boolean correct = true;
+
+			while(correct && scanner.hasNextLine())
+			{
+				String line = scanner.nextLine();
+				String[] parts = line.split(" ", 4);
+
+				try
+				{
+					int pid = Integer.parseInt(parts[0]);
+					String name = parts[1];
+					int port = Integer.parseInt(parts[2]);
+					int has = Integer.parseInt(parts[3]);
+
+					this.peerInfo.add(new PeerInfoBlock(pid, name, port, (has==1) ));
+					if(VERBOSE)
+					{
+						System.out.println("Added peer - " + pid + " from peer info file" );
+						//temp.all_out();
+					}
+				}
+				catch(Exception e)
+				{
+					if(VERBOSE)
+					{
+						System.out.println("Catching exception, closing scanner...");
+					}
+					scanner.close();
+					System.out.println("PeerInfo.cfg is malformed - the line \'" + line + "\' is not formatted correctly.");
+
+					correct = false;
+
+				}
+				finally
+				{
+					
+				}
+			}
+
+			if(correct)
+			{
+				scanner.close();
+
+				if(VERBOSE)
+				{
+					System.out.println("Finished reading peers from PeerInfo. Found " + this.peerInfo.size() + " entries.\n");
+				}
+
+				//initializePeerProcesses();
+			}
+		}
+		else
+		{
+			System.out.println("PeerInfo.cfg does not exist\n");
+		}
+
+        PeerInfoBlock thisPeer = null;
+        //find the info block for this process
+        for(PeerInfoBlock b: peerInfo){
+            if(b.peerId == this.peerId){
+                thisPeer = b;
+            }
+        }
+
+        if (thisPeer == null) throw new Exception("Construction of peer process failed: could not match PeerID to one in the peer info list");
+
+        //file tracker must be filesize/8 because each bit in the tracker tracks a byte in the file
+        fileTracker = new byte[(commonBlock.fileSize/8)+1];
+
+        //peer checks info block to see if it has the entire file. If it does, fill its filetracker array
+        if(thisPeer.hasFile){
+            for(int i=0;i<fileTracker.length;++i){
+                fileTracker[i]=(byte)0xff;
+            }
+        }
+
+        preferredNeighbors = new ArrayList<Integer>();
+
+        handshake = new Handshake(peerId);
+    
+	
+    }
+
+    public static void main(String args[]) throws Exception{
+        PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[1]));
+        peerProcess.buildPeerProcess();
+        peerProcess.initializePeerProcess();
+
+        /*
+         * start up listener server
+         */
+
+         /*
+         * read peerblock info and find peers started before this one
+         */
+
+         /*
+         * connect to each previous peer
+         * 
+         *          send handshake
+         *          receive handshake
+         *          validate handshake
+         * 
+         *          if has file, send bitfield message
+         */
+
+         /*
+         * randmoly choose k neighbors
+         * 
+         * spin up thread to wait for m seconds and reselect the new neighbor
+         */
+
+         /*
+         * begin timing loop
+         */
+
+            /*
+             * pass messages to neighbors
+             */
+
+        /*
+         * Time expires
+         * 
+         */
+
+            /*
+            * Calculate message speeds for all neighbors, choose new neighbors
+            */
+    }
+        
+    
 
 }
