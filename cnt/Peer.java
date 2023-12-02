@@ -29,7 +29,7 @@ public class Peer {
     public Peer() {
         id = 0000;
         hostname = "lin114-00.cise.ufl.edu";
-        port = 8000;
+        port = 8001;
     }
     
     public Peer(int id, String hostname, int port) {

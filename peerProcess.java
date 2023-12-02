@@ -1,15 +1,28 @@
 import peer_class_files.*;
 import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.*;
+import cnt.*;
 
 public class peerProcess {
     public static void main(String args[]) throws Exception{
         
         PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[0]));
 
+        
+
+
+        peerProcess.buildPeerProcess();
+        peerProcess.initializePeerProcess();
+        peerProcess.newPeer();
+        
+
+
         /*
          * start up listener server
          */
+        
 
          /*
          * read peerblock info and find peers started before this one
