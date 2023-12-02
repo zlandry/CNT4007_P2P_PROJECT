@@ -38,6 +38,8 @@ public class PeerProcess {
     int portNum;
     boolean hasFile;
 
+    int fileSizeInPieces = 0;
+
     //tracks this peers preferred neighbors
     List<Integer> preferredNeighbors;
 
@@ -456,26 +458,27 @@ public class PeerProcess {
         }
 
         if (thisPeer == null) throw new Exception("Construction of peer process failed: could not match PeerID to one in the peer info list");
+        else{
+            this.hostName = thisPeer.getHostName();
+            this.portNum = thisPeer.getPortNum();
+            this.hasFile = thisPeer.getHasFile();
+        }
 
+        this.fileSizeInPieces = commonBlock.getFileSize()/commonBlock.getPieceSize();
+        int fileDifference = commonBlock.getFileSize() % commonBlock.getPieceSize();
+
+        if(fileDifference != 0){
+             this.fileSizeInPieces += 1;
+        }
         //file tracker must be filesize/8 because each bit in the tracker tracks a byte in the file
-        fileTracker = new byte[(commonBlock.fileSize/8)+1];
+        fileTracker = new byte[fileSizeInPieces];
 
         //peer checks info block to see if it has the entire file. If it does, fill its filetracker array
         if(thisPeer.hasFile){
-            for(int i=0;i<fileTracker.length-1;++i){
+            for(int i=0;i<fileTracker.length;++i){
                 fileTracker[i]=(byte)0xff;
             }
-            if(fileTracker.length % 8 == 0) fileTracker[fileTracker.length-1] = (byte)0xff;
-
-            //handles the case where the file length is not a multiple of 8: leaves the last bits as 0 in the tracker
-            else{
-                int leftover = fileTracker.length/8;
-                byte lastb = (byte)0x00;
-                for(int i=0;i<leftover;++i){
-                    lastb = (byte)(lastb | 0x01);
-                    lastb = (byte)(lastb << 1);
-                }
-            }
+            
         }
 
         preferredNeighbors = new ArrayList<Integer>();

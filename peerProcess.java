@@ -13,12 +13,13 @@ public class peerProcess {
 
          /*
          * read peerblock info and find peers started before this one
+         * the list of information about those peers will be stored in peerIdsToConnectTo
          */
-        ArrayList<PeerInfoBlock> peerIds = new ArrayList<>();
+        ArrayList<PeerInfoBlock> peerIdsToConnectTo = new ArrayList<>();
         List<PeerInfoBlock> allPeers = peerProcess.getPeerInfoBlocks();
         for(PeerInfoBlock b: allPeers){
             if(b.getPeerId() != peerProcess.getPeerId()){
-                peerIds.add(b);
+                peerIdsToConnectTo.add(b);
             }
 
             else{
