@@ -1,10 +1,16 @@
 package peer_class_files;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 //import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
@@ -12,6 +18,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import MessageTypes.Handshake;
+import cnt.Client;
+import cnt.Server;
 
 
 public class PeerProcess {
@@ -96,6 +104,10 @@ public class PeerProcess {
 
     public int getPeerId(){
         return this.peerId;
+    }
+
+    public int getPortNum(){
+        return this.portNum;
     }
 
     public static void checkPeerInfo(PeerProcess p){
@@ -284,6 +296,37 @@ public class PeerProcess {
         writeToLog("First log message for peer "+this.peerId);
     }
 
+    public boolean validateHandshake(int id, byte[] message){ //compare given int with last four bytres of handshake array
+        String hsheader = "P2PFILESHARINGPROJ";
+
+        for(int i = 0; i < hsheader.length(); ++i){
+            if(message[i] != hsheader.charAt((i))){
+                System.out.println("Header mismatch on position " + i + " which was |" + message[i] + "| and should have been |" + hsheader.charAt(i) + "|");
+                return false;
+            }
+        }
+
+        for(int i = 18; i < 28; ++i){
+            if(message[i] != '0'){
+                System.out.println("Zero buffer mismatch on position " + i);
+                return false;
+            }
+        }
+
+        byte[] idarr = ByteBuffer.allocate(4).putInt(id).array();
+
+        for(int i = 0; i < 4; ++i)
+        {
+            //message[i] = (byte)str.charAt(i);
+            if(message[i + 28] != idarr[i]){
+                System.out.println("ID mismatch on position " + i + ", expected " + id);
+                return false;
+            }
+        }
+
+        return true;
+    } 
+
     public void buildPeerProcess() throws Exception{
         int prefNeighborCount = 0;
         int unchokeIntv = 0;
@@ -464,8 +507,8 @@ public class PeerProcess {
             this.hasFile = thisPeer.getHasFile();
         }
 
-        this.fileSizeInPieces = commonBlock.getFileSize()/commonBlock.getPieceSize();
-        int fileDifference = commonBlock.getFileSize() % commonBlock.getPieceSize();
+        this.fileSizeInPieces = this.commonBlock.getFileSize()/this.commonBlock.getPieceSize();
+        int fileDifference = this.commonBlock.getFileSize() % this.commonBlock.getPieceSize();
 
         if(fileDifference != 0){
              this.fileSizeInPieces += 1;
@@ -487,11 +530,12 @@ public class PeerProcess {
     
 	
     }
-/*
-    public static void main(String args[]) throws Exception{
-        PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[1]));
-        peerProcess.buildPeerProcess();
-        peerProcess.initializePeerProcess();
+
+
+  //  public static void main(String args[]) throws Exception{
+  //      PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[1]));
+ //       peerProcess.buildPeerProcess();
+  //      peerProcess.initializePeerProcess();
 
         /*
          * start up listener server
@@ -535,6 +579,103 @@ public class PeerProcess {
             */
     
         
+    class Sender extends Thread {
 
+        private Socket s;
+        private BufferedReader in;
+        private BufferedWriter dout;
+    
+        public void run() {
+            try {
+                in = new BufferedReader(new InputStreamReader(System.in));
+                System.out.println("Enter destPort:");
+                int destPort = Integer.parseInt(in.readLine());
+    
+                s = new Socket("localhost", destPort);
+                dout = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+    
+                String str;
+                while (true) {
+                    System.out.println("Enter message for another peer:");
+                    str = in.readLine();
+                    dout.write(str + "\n");
+                    dout.flush();
+    
+                    if (str.equalsIgnoreCase("bye")) {
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println(e);
+            } finally {
+                try {
+                    if (s != null) s.close();
+                    if (dout != null) dout.close();
+                    if (in != null) in.close();
+                } catch (IOException e) {
+                    System.out.println("Error closing resources: " + e.getMessage());
+                }
+            }
+        }
+    }
+    
+    class Receiver extends Thread {
+    
+        private int port;
+        private ServerSocket ss;
+        private Socket s;
+        private BufferedReader din;
+    
+        Receiver(int port) {
+            this.port = port;
+        }
+    
+        public void run() {
+            try {
+                ss = new ServerSocket(port);
+                System.out.println("Receiver created!!!");
+    
+                while (true) {
+                    s = ss.accept();
+                    System.out.println("Client connected");
+    
+                    din = new BufferedReader(new InputStreamReader(s.getInputStream()));
+    
+                    String str;
+                    while ((str = din.readLine()) != null) {
+                        System.out.println("Received: " + str);
+    
+                        if (str.equalsIgnoreCase("bye")) {
+                            System.out.println("Client left");
+                            break;
+                        }
+                    }
+    
+                    s.close();
+                }
+            } catch (Exception e) {
+                System.out.println(e);
+            } finally {
+                try {
+                    if (ss != null) ss.close();
+                    if (din != null) din.close();
+                } catch (IOException e) {
+                    System.out.println("Error closing server resources: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+public void newPeer() throws Exception {
+    System.out.print("Enter port for this Peer  ");
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    int port = Integer.valueOf(in.readLine()); 
+    Sender s = new Sender();
+    Receiver r = new Receiver(port);
+
+    s.start(); r.start();
+
+    s.join(); r.join();
+}
 
 }
