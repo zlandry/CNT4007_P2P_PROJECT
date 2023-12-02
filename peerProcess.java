@@ -4,14 +4,8 @@ import java.util.*;
 
 public class peerProcess {
     public static void main(String args[]) throws Exception{
-        //BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[0]));
-
         
-
-
-        peerProcess.buildPeerProcess();
-        peerProcess.initializePeerProcess();
+        PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[0]));
 
         /*
          * start up listener server
@@ -20,6 +14,17 @@ public class peerProcess {
          /*
          * read peerblock info and find peers started before this one
          */
+        ArrayList<PeerInfoBlock> peerIds = new ArrayList<>();
+        List<PeerInfoBlock> allPeers = peerProcess.getPeerInfoBlocks();
+        for(PeerInfoBlock b: allPeers){
+            if(b.getPeerId() != peerProcess.getPeerId()){
+                peerIds.add(b);
+            }
+
+            else{
+                break;
+            }
+        }
 
          /*
          * connect to each previous peer

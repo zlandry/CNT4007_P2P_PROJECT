@@ -1,8 +1,10 @@
 package peer_class_files;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 //import java.io.IOError;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
@@ -69,6 +71,10 @@ public class PeerProcess {
         this.peerInfo = pib;
     }
 
+    public List<PeerInfoBlock> getPeerInfoBlocks(){
+        return this.peerInfo;
+    }
+
     public void clearPreferredNeighbors(){
         preferredNeighbors.clear();
     }
@@ -104,14 +110,16 @@ public class PeerProcess {
 
     private void writeToLog(String logMessage){
         try{
-            FileWriter logger = new FileWriter(peerLogDirectory+"/"+peerLogFile);
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");  
+            FileWriter logger = new FileWriter(peerLogDirectory+"/"+peerLogFile, true);
+            BufferedWriter bw = new BufferedWriter(logger);
+            PrintWriter out = new PrintWriter(bw);
+            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date date = new Date();
-            logger.write(formatter.format(date));
-            logger.write(": ");
-            logger.write(logMessage);
-            logger.write('\n');
-            logger.close();
+            out.print(formatter.format(date));
+            out.print(": ");
+            out.print(logMessage);
+            out.print('\n');
+            out.close();
         }
         catch (IOException e){
             System.out.println("Error: ");
@@ -119,7 +127,7 @@ public class PeerProcess {
         }
     }
 
-    private void logConnectToPeer(int peerIDOther){
+    public void logConnectToPeer(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -130,7 +138,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logConnectedFromPeer(int peerIDOther){
+    public void logConnectedFromPeer(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -141,7 +149,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logChangedPreferredNeighbors(){
+    public void logChangedPreferredNeighbors(){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -161,7 +169,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logChangeOptimisticallyUnchokedNeighbor(int peerIDOther){
+    public void logChangeOptimisticallyUnchokedNeighbor(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -172,7 +180,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logPeerIsUnchoked(int peerIDOther){
+    public void logPeerIsUnchoked(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -183,7 +191,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logPeerIsChoked(int peerIDOther){
+    public void logPeerIsChoked(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -194,7 +202,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logRecHaveMessage(int peerIDOther, int pieceIndex){
+    public void logRecHaveMessage(int peerIDOther, int pieceIndex){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -207,7 +215,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logRecInterestedMessage(int peerIDOther){
+    public void logRecInterestedMessage(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -218,7 +226,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-     private void logRecNotInterestedMessage(int peerIDOther){
+     public void logRecNotInterestedMessage(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -229,7 +237,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logRecCompletedDownload(int peerIDOther, int pieceIndex){
+    public void logRecCompletedDownload(int peerIDOther, int pieceIndex){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -245,7 +253,7 @@ public class PeerProcess {
         writeToLog(sb.toString());
     }
 
-    private void logCompletedDownload(){
+    public void logCompletedDownload(){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
         sb.append(this.peerId);
@@ -253,8 +261,6 @@ public class PeerProcess {
 
         writeToLog(sb.toString());
     }
-
-    
 
 
 
@@ -456,8 +462,19 @@ public class PeerProcess {
 
         //peer checks info block to see if it has the entire file. If it does, fill its filetracker array
         if(thisPeer.hasFile){
-            for(int i=0;i<fileTracker.length;++i){
+            for(int i=0;i<fileTracker.length-1;++i){
                 fileTracker[i]=(byte)0xff;
+            }
+            if(fileTracker.length % 8 == 0) fileTracker[fileTracker.length-1] = (byte)0xff;
+
+            //handles the case where the file length is not a multiple of 8: leaves the last bits as 0 in the tracker
+            else{
+                int leftover = fileTracker.length/8;
+                byte lastb = (byte)0x00;
+                for(int i=0;i<leftover;++i){
+                    lastb = (byte)(lastb | 0x01);
+                    lastb = (byte)(lastb << 1);
+                }
             }
         }
 
@@ -467,7 +484,7 @@ public class PeerProcess {
     
 	
     }
-
+/*
     public static void main(String args[]) throws Exception{
         PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[1]));
         peerProcess.buildPeerProcess();
@@ -513,8 +530,8 @@ public class PeerProcess {
             /*
             * Calculate message speeds for all neighbors, choose new neighbors
             */
-    }
-        
     
+        
+
 
 }
