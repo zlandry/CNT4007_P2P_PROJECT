@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import MessageTypes.Handshake;
-import cnt.Client;
-import cnt.Server;
+// import cnt.Client;
+// import cnt.Server;
 
 
 public class PeerProcess {
@@ -577,7 +577,7 @@ public class PeerProcess {
             /*
             * Calculate message speeds for all neighbors, choose new neighbors
             */
-    
+    // }
         
     class Sender extends Thread {
 
@@ -665,7 +665,6 @@ public class PeerProcess {
             }
         }
     }
-
 public void newPeer() throws Exception {
     System.out.print("Enter port for this Peer  ");
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
