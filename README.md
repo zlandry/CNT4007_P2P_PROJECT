@@ -1,2 +1,14 @@
 # CNT4007 Term Project
-## We dont know what we are doing yet but we need 800 lines of code by tomorrow
+## Group Number 19
+- Zachary Landry (stickynote11@ufl.edu)
+- Jeremy Martin (jeremymartin@ufl.edu)
+- Christopher Bursch (burschc@ufl.edu)
+
+Video Link: [Link](https://www.youtube.com/)
+
+What was completed:
+- 
+-
+What was not completed:
+-
+-
