@@ -5,6 +5,7 @@ import java.io.FileWriter;
 //import java.io.IOError;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
@@ -281,6 +282,37 @@ public class PeerProcess {
         }
         writeToLog("First log message for peer "+this.peerId);
     }
+
+    public boolean validateHandshake(int id, byte[] message){ //compare given int with last four bytres of handshake array
+        String hsheader = "P2PFILESHARINGPROJ";
+
+        for(int i = 0; i < hsheader.length(); ++i){
+            if(message[i] != hsheader.charAt((i))){
+                System.out.println("Header mismatch on position " + i + " which was |" + message[i] + "| and should have been |" + hsheader.charAt(i) + "|");
+                return false;
+            }
+        }
+
+        for(int i = 18; i < 28; ++i){
+            if(message[i] != '0'){
+                System.out.println("Zero buffer mismatch on position " + i);
+                return false;
+            }
+        }
+
+        byte[] idarr = ByteBuffer.allocate(4).putInt(id).array();
+
+        for(int i = 0; i < 4; ++i)
+        {
+            //message[i] = (byte)str.charAt(i);
+            if(message[i + 28] != idarr[i]){
+                System.out.println("ID mismatch on position " + i + ", expected " + id);
+                return false;
+            }
+        }
+
+        return true;
+    } 
 
     public void buildPeerProcess() throws Exception{
         int prefNeighborCount = 0;
