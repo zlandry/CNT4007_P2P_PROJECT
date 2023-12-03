@@ -36,4 +36,14 @@ public abstract class Message
         payload = pld;
     }
 
+    public char[] getChar() {
+        // Assuming length includes 4 bytes of length itself, 1 byte of type, and payload length
+        char[] message = new char[10];
+        // 
+        
+        
+    
+        return message;
+    }
+
 }
