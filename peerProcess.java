@@ -8,17 +8,18 @@ import cnt.*;
 public class peerProcess {
     public static void main(String args[]) throws Exception{
         
-        PeerProcess peerProcess = new PeerProcess(Integer.parseInt(args[0]));
+        PeerProcess peer = new PeerProcess(Integer.parseInt(args[0]));
+
+        peer.buildPeerProcess();
+        peer.initializePeerProcess();
+        
+        // peerProcess.startServer();
 
         
-
-
-        peerProcess.buildPeerProcess();
-        peerProcess.initializePeerProcess();
-        peerProcess.newPeer();
+        // TODO: separate listener and sender into different methods
+        // TODO: handshake
+        // TODO: bitfield after that i guess lol    
         
-
-
         /*
          * start up listener server
          */
@@ -29,9 +30,9 @@ public class peerProcess {
          * the list of information about those peers will be stored in peerIdsToConnectTo
          */
         ArrayList<PeerInfoBlock> peerIdsToConnectTo = new ArrayList<>();
-        List<PeerInfoBlock> allPeers = peerProcess.getPeerInfoBlocks();
+        List<PeerInfoBlock> allPeers = peer.getPeerInfoBlocks();
         for(PeerInfoBlock b: allPeers){
-            if(b.getPeerId() != peerProcess.getPeerId()){
+            if(b.getPeerId() != peer.getPeerId()){
                 peerIdsToConnectTo.add(b);
             }
 
@@ -39,8 +40,11 @@ public class peerProcess {
                 break;
             }
         }
-
+        // make this wait for a connection from a peer
+        // peerProcess.startClient();
+        peer.newPeer(peerIdsToConnectTo);
          /*
+
          * connect to each previous peer
          * 
          *          send handshake
@@ -74,3 +78,19 @@ public class peerProcess {
             */
     }
 }
+
+/*
+
+for timing, the loop which accepts connections from other peers must keep track of how much time has passed
+for optimistic unchoking and selecting new neighbors.  Blocking operations must be passed the shorter of the two timeouts
+
+*/
+
+/*
+
+    wait for connection
+    accept connection between two peers
+    each peer starts a new thread with a new socket which waits for a new incoming connection
+    after each connection, check to see if there are any peers missing
+        if not, don't start up a new connection
+*/

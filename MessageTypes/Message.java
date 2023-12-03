@@ -6,32 +6,32 @@ public abstract class Message
     protected Type type;
     protected byte[] payload;
 
-    int getLength()
+    public int getLength()
     {
         return length;
     }
 
-    Type getType()
+    public Type getType()
     {
         return type;
     }
 
-    byte[] getPayload()
+    public byte[] getPayload()
     {
         return payload;
     }
 
-    void setLength(int len)
+    public void setLength(int len)
     {
         length = len;
     }
 
-    void setType(Type mtype)
+    public void setType(Type mtype)
     {
         type = mtype;
     }
 
-    void setPayload(byte[] pld)
+    public void setPayload(byte[] pld)
     {
         payload = pld;
     }

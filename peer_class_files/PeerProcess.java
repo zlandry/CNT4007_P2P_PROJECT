@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import MessageTypes.Handshake;
 // import cnt.Client;
@@ -24,15 +26,23 @@ import MessageTypes.Handshake;
 
 public class PeerProcess {
     
-    //byte[] handshake = new byte[32];
     byte[] fileTracker;
+
+    //tracks file storage of all other peers
+    //upon connection to a peer, needs to add a new byte array to the list
+    //upon collection of file parts, needs to update that peers list
+    List<byte[]> peerFileTracker;
 
     int peerId;
     private String peerLogDirectory;
     private String peerLogFile;
     private Handshake handshake;
+    int destPort;
 
     private static boolean VERBOSE = true;
+
+    //list of sockets to between peers
+    ArrayList<Socket> communicationSockets = new ArrayList<Socket>();
     
     CommonBlock commonBlock;
     //unchokingInterval, optimisticUnchokingInterval, NumberOfPreferredNeighbors, fileName, fileSize, and pieceSize can all be pulled from commonBlock
@@ -296,30 +306,61 @@ public class PeerProcess {
         writeToLog("First log message for peer "+this.peerId);
     }
 
-    public boolean validateHandshake(int id, byte[] message){ //compare given int with last four bytres of handshake array
+    public boolean validateHandshake(int id, String message){ //compare given int with last four bytres of handshake array
         String hsheader = "P2PFILESHARINGPROJ";
 
         for(int i = 0; i < hsheader.length(); ++i){
-            if(message[i] != hsheader.charAt((i))){
+            if(message.charAt(i) != hsheader.charAt((i))){
+                System.out.println("Header mismatch on position " + i + " which was |" + message.charAt(i) + "| and should have been |" + hsheader.charAt(i) + "|");
+                return false;
+            }
+        }
+
+        for(int i = 18; i < 28; ++i){
+            if((byte)message.charAt(i) != 0x00){
+                System.out.println("Zero buffer mismatch on position " + i + " (character: " + message.charAt(i) + ")");
+                return false;
+            }
+        }
+
+        byte[] idarr = ByteBuffer.allocate(4).putInt(id).array();
+        String str = new String(idarr);
+        for(int i = 0; i < 4; ++i)
+        {
+            //message[i] = (byte)str.charAt(i);
+            if((byte)message.charAt(31-i) != (byte)str.charAt(i)){
+                System.out.println("ID mismatch on position " + (i + 28) + ", expected " + str.charAt(i) + " but recieved " + message.charAt(i + 28));
+                return false;
+            }
+        }
+
+        return true;
+    } 
+
+    public boolean validateHandshakeArray(int id, char[] message){ //compare given int with last four bytres of handshake array
+        String hsheader = "P2PFILESHARINGPROJ";
+
+        for(int i = 0; i < hsheader.length(); ++i){
+            if(message[i] != (byte)hsheader.charAt((i))){
                 System.out.println("Header mismatch on position " + i + " which was |" + message[i] + "| and should have been |" + hsheader.charAt(i) + "|");
                 return false;
             }
         }
 
         for(int i = 18; i < 28; ++i){
-            if(message[i] != '0'){
-                System.out.println("Zero buffer mismatch on position " + i);
+            if(message[i] != 0x00){
+                System.out.println("Zero buffer mismatch on position " + i + " (character: " + message[i] + ")");
                 return false;
             }
         }
 
         byte[] idarr = ByteBuffer.allocate(4).putInt(id).array();
-
+        String str = new String(idarr);
         for(int i = 0; i < 4; ++i)
         {
             //message[i] = (byte)str.charAt(i);
-            if(message[i + 28] != idarr[i]){
-                System.out.println("ID mismatch on position " + i + ", expected " + id);
+            if((byte)message[31 - i] != (byte)str.charAt(i)){
+                System.out.println("ID mismatch on position " + (i + 28) + ", expected " + str.charAt(i) + " but recieved " + message[i + 28]);
                 return false;
             }
         }
@@ -513,7 +554,7 @@ public class PeerProcess {
         if(fileDifference != 0){
              this.fileSizeInPieces += 1;
         }
-        //file tracker must be filesize/8 because each bit in the tracker tracks a byte in the file
+        //file tracker 
         fileTracker = new byte[fileSizeInPieces];
 
         //peer checks info block to see if it has the entire file. If it does, fill its filetracker array
@@ -524,9 +565,17 @@ public class PeerProcess {
             
         }
 
-        preferredNeighbors = new ArrayList<Integer>();
+        this.preferredNeighbors = new ArrayList<Integer>();
 
-        handshake = new Handshake(peerId);
+        //initialize the peer file piece tracker, adding a byte array in each slot of the array list
+        //which corresponds to each other peer. 
+        this.peerFileTracker = new ArrayList<byte[]>();
+        for(int i = 0;i<this.peerInfo.size();++i){
+            peerFileTracker.add(new byte[fileSizeInPieces]);
+        }
+
+        this.handshake = new Handshake(peerId);
+        this.handshake.setupPayload();
     
 	
     }
@@ -580,26 +629,37 @@ public class PeerProcess {
     // }
         
     class Sender extends Thread {
-
         private Socket s;
         private BufferedReader in;
         private BufferedWriter dout;
     
+        Sender(Socket socket) {
+            this.s = socket;
+            this.in = new BufferedReader(new InputStreamReader(System.in));
+        }
+    
         public void run() {
             try {
-                in = new BufferedReader(new InputStreamReader(System.in));
-                System.out.println("Enter destPort:");
-                int destPort = Integer.parseInt(in.readLine());
-    
-                s = new Socket("localhost", destPort);
                 dout = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
-    
-                String str;
+                
+                String str = new String(handshake.getPayload());
+         
+                //dout.write(str + "\n"); // this can write a byte array
+                //dout.flush();
+
+                char[] yeah = str.toCharArray();
+
+                dout.write(yeah);
+                dout.flush();
                 while (true) {
-                    System.out.println("Enter message for another peer:");
+                    // System.out.println("Enter message for another peer:");
                     str = in.readLine();
+                    
+                    
                     dout.write(str + "\n");
                     dout.flush();
+
+
     
                     if (str.equalsIgnoreCase("bye")) {
                         break;
@@ -618,32 +678,48 @@ public class PeerProcess {
             }
         }
     }
-    
     class Receiver extends Thread {
     
         private int port;
         private ServerSocket ss;
         private Socket s;
+        // private ByteArrayInputStream din;
         private BufferedReader din;
     
         Receiver(int port) {
             this.port = port;
         }
+        Receiver(Socket s) {
+            this.s = s;
+        }
     
         public void run() {
             try {
-                ss = new ServerSocket(port);
+                // if ss is null, then new ServerSocket at port
+                if (ss == null) ss = new ServerSocket(port);
                 System.out.println("Receiver created!!!");
     
                 while (true) {
+                    //connect to others existing
+                    //for each existing, send a connection request with a new client socket
+                    //start up a server socket to accept new connections
                     s = ss.accept();
                     System.out.println("Client connected");
-    
+
+                    communicationSockets.add(s);
+
                     din = new BufferedReader(new InputStreamReader(s.getInputStream()));
-    
+                    // din = new ByteArrayInputStream(new InputStreamReader(s.getInputStream()).toString().getBytes());
+                    // TODO: get the id from the file
+                    int connectingPeerNum = Integer.parseInt(din.readLine());
+                    System.out.println("Attempting to receive connection for peer: "+connectingPeerNum);
+                    System.out.println("Handshake is valid: " + validateHandshake(connectingPeerNum,din.readLine()));
+
                     String str;
-                    while ((str = din.readLine()) != null) {
+                    while ( (str = din.readLine()) != null) {
                         System.out.println("Received: " + str);
+
+                        // System.out.println("Is this what I expected? " + validateHandshake(1001,str));
     
                         if (str.equalsIgnoreCase("bye")) {
                             System.out.println("Client left");
@@ -665,16 +741,111 @@ public class PeerProcess {
             }
         }
     }
-public void newPeer() throws Exception {
-    System.out.print("Enter port for this Peer  ");
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    int port = Integer.valueOf(in.readLine()); 
-    Sender s = new Sender();
-    Receiver r = new Receiver(port);
+    
+   
+    public void newPeer(ArrayList<PeerInfoBlock> peerInfoBlocks) throws Exception {
+        // System.out.print("Enter port for this Peer: ");
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        
+        int port = this.portNum;
+        Receiver r = new Receiver(port);
 
-    s.start(); r.start();
+        
+    
+        String str = new String(handshake.getPayload());
 
-    s.join(); r.join();
-}
+        //attempt to connect to all peers already active
+        for(PeerInfoBlock peerInfo: peerInfoBlocks){
+            try{
+                System.out.println("Connecting to port " + peerInfo.getPortNum());
+                destPort = peerInfo.getPortNum();
+                Socket socket = new Socket("localhost", peerInfo.getPortNum());
+                communicationSockets.add(socket);
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                out.write(this.portNum + '\n');
+                out.write(str + '\n');
+                out.flush();
+
+                BufferedReader handshakeIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String recval = ""; 
+                recval = handshakeIn.readLine();
+                
+                validateHandshake(peerInfo.getPeerId(),recval);
+
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+
+        for(Socket s:communicationSockets){
+                System.out.println("Spinning up new thread to handle communication connection to new peer...");
+
+                Thread senderThread = new Thread(() -> {
+                    try {
+                        Sender sender = new Sender(s);
+                        sender.start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+                senderThread.start();
+        }
+
+
+        // Start the server thread but don't accept connections until signaled
+        r.start();
+            // JEREMY: the sockets may not start correctly because .start is a thread thing i think
+        System.out.println("Press Enter to start accepting connections");
+        in.readLine();
+        // grab the port from all other peer info blocks
+        /*
+        for(PeerInfoBlock peerInfo: peerInfoBlocks){
+            // TODO: this for loop should connect to all other peers, not just the one with the lowest id
+            // TODO: create a new thread for each connection
+            if (peerInfo.getPeerId() != this.peerId) {
+                System.out.println("Connecting to port " + peerInfo.getPortNum());
+                destPort = peerInfo.getPortNum();
+                Thread senderThread = new Thread(() -> {
+                    try {
+                        Socket socket = new Socket("localhost", destPort);
+                        Sender sender = new Sender(socket);
+                        sender.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+    
+                Thread receiverThread = new Thread(() -> {
+                    try {
+                        ServerSocket serverSocket = new ServerSocket(peerInfo.getPortNum());
+                        Socket clientSocket = serverSocket.accept();
+                        Receiver receiver = new Receiver(clientSocket);
+                        receiver.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+    
+                senderThread.start();
+                receiverThread.start();
+            }
+            
+            
+        }
+        */
+        //if (this.peerId == 1001) destPort = 6009;
+    
+        // Now that the user has signaled to start accepting connections, create the client
+        // System.out.println("Enter destination port for client:");
+        // int destPort = Integer.parseInt(in.readLine());
+        /*
+        System.out.println("Connecting to port " + destPort);
+        Socket socket = new Socket("localhost", destPort);
+        Sender s = new Sender(socket);
+        s.start(); // Start the client thread
+        */
+    }
 
 }

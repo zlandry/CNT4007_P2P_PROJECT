@@ -110,7 +110,7 @@ public class Config {
 		}
 		peers = new ArrayList<PeerProcess>(); 
 		for(PeerInfoBlock p:peerInfoBlock){
-			peers.add(new PeerProcess(peerInfoBlock, p.getPeerId(), commonBlock));
+			peers.add(new PeerProcess(p.getPeerId()));
 			buildPeerDirectory(peers.get(peers.size()-1));
 		}
 
