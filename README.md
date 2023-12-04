@@ -7,7 +7,7 @@
 - Christopher Bursch (burschc@ufl.edu)
     - File reading and message structure
 
-Video Link: [Link]([https://www.youtube.com/](https://www.youtube.com/watch?v=OFwC73z0QZU))
+Video Link: [Link]([https://www.youtube.com/watch?v=OFwC73z0QZU])
 
 ## What was completed:
 - 1a) Peers will read Common.cfg and PeerInfo.cfg and set all relevant variables.
