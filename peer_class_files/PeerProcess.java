@@ -846,7 +846,7 @@ public class PeerProcess {
                 }
                 String message = "";
                 for(int j = 0; j < field.size(); ++j){
-                    System.out.println("byte array "+j+" has byte "+String.format("%02x", field.get(j)[0]) + " at location 0");
+                    //System.out.println("byte array "+j+" has byte "+String.format("%02x", field.get(j)[0]) + " at location 0");
                     s.getOutputStream().write(field.get(j));
                     
                     //message = new String(field.get(0));
@@ -896,8 +896,9 @@ public class PeerProcess {
                 //FileInputStream using read() 
                 //0000 0000 
                 //128 64 32 16 8421
+                /*
                 while (true) {
-                    // System.out.println("Enter message for another peer:");
+                    System.out.println("Enter message for another peer:");
                     str = in.readLine();
                     
                     if (str == null) break;
@@ -911,6 +912,8 @@ public class PeerProcess {
                         break;
                     }
                 }
+                */
+                
             } catch (Exception e) {
                 System.out.println(e);
             } finally {
@@ -999,7 +1002,7 @@ public class PeerProcess {
                        // System.out.println("Received: " + str);
                        s.getInputStream().read(largeBuf);
                        System.out.println("recieve piece "+numberOfPieces);
-                       System.out.println("recieved byte array "+numberOfPieces+" has byte "+String.format("%02x", largeBuf[0]) + " at location 0");
+                       System.out.println("recieved byte array "+numberOfPieces+" has byte "+String.format("%02x", largeBuf[0]) );
                         writeToFile(largeBuf);
                         logRecCompletedDownload(connectingPeerNum,numberOfPieces++);
                        // messages.add(str);
@@ -1012,8 +1015,26 @@ public class PeerProcess {
                             break;
                         }
                     }
+                    /*
+
+                    BufferedWriter dout = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+                    while ((str = din.readLine()) != null) {
+                    // System.out.println("Enter message for another peer:");
+                    
+                    System.out.println("Received: " + str);
+    
+                        if (str.equalsIgnoreCase("bye")) {
+                            System.out.println("Client left");
+                            break;
+                        }
+                    
+                }
+                */
+                    
     
                     s.close();
+
+                    if (numberOfPieces == commonBlock.getFileSize()/commonBlock.getPieceSize()-1) break;
                 }
             } catch (Exception e) {
                 System.out.println(e);
@@ -1126,11 +1147,11 @@ public class PeerProcess {
         // }
         String other = "";
         if (this.peerId == 1001){
-            destPort = 3692;
+            destPort = 6009;
             other = "lin114-01.cise.ufl.edu";
         } 
         if (this.peerId == 1002){
-             destPort = 3691;
+             destPort = 6008;
              other = "lin114-00.cise.ufl.edu";
         }
     
@@ -1139,7 +1160,7 @@ public class PeerProcess {
         // int destPort = Integer.parseInt(in.readLine());
         
         System.out.println("Connecting to port " + destPort);
-        Socket socket = new Socket(other, destPort);
+        Socket socket = new Socket("localhost", destPort);
         Sender s = new Sender(socket);
         s.start(); // Start the client thread
         
