@@ -19,7 +19,8 @@ Video Link: [Link](https://www.youtube.com/)
 -
 
 ## Running the project:
-
+In the folder CNT4007_P2P_PROJECT, run javac peerProcess.java. Then, to start peers, just run java peerProcess [id].
+Ex. `java peerProcess 1001`.
 
 ## Project Description
 This repo aims to implement a simple peer to peer file sharing program, similar to bitTorrent, in Java.
