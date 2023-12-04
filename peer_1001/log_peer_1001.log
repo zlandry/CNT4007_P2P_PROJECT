@@ -1,91 +1,24 @@
-02/12/2023 16:40:56: First log message for peer 1001
-02/12/2023 16:40:56: Peer 1001 has the optimistically unchoked neighbor 1002.
-02/12/2023 16:40:56: Peer 1001 has the preferred neighbors .
-12/02/2023 16:41:59: First log message for peer 1001
-12/02/2023 16:41:59: Peer 1001 has the optimistically unchoked neighbor 1002.
-12/02/2023 16:41:59: Peer 1001 has the preferred neighbors .
-12/02/2023 17:59:51: First log message for peer 1001
-12/02/2023 18:08:40: First log message for peer 1001
-12/02/2023 18:41:00: First log message for peer 1001
-12/02/2023 18:45:07: First log message for peer 1001
-12/02/2023 18:52:38: First log message for peer 1001
-12/02/2023 19:02:55: First log message for peer 1001
-12/02/2023 19:04:12: First log message for peer 1001
-12/02/2023 19:06:08: First log message for peer 1001
-12/02/2023 19:21:35: First log message for peer 1001
-12/02/2023 19:23:16: First log message for peer 1001
-12/02/2023 19:26:20: First log message for peer 1001
-12/02/2023 19:27:12: First log message for peer 1001
-12/02/2023 19:29:10: First log message for peer 1001
-12/02/2023 19:32:14: First log message for peer 1001
-12/02/2023 19:33:01: First log message for peer 1001
-12/02/2023 19:34:00: First log message for peer 1001
-12/02/2023 19:34:56: First log message for peer 1001
-12/02/2023 19:37:35: First log message for peer 1001
-12/02/2023 19:38:36: First log message for peer 1001
-12/02/2023 19:39:16: First log message for peer 1001
-12/02/2023 19:42:14: First log message for peer 1001
-12/02/2023 19:47:31: First log message for peer 1001
-12/02/2023 19:48:09: First log message for peer 1001
-12/02/2023 19:49:54: First log message for peer 1001
-12/02/2023 19:51:44: First log message for peer 1001
-12/02/2023 20:09:31: First log message for peer 1001
-12/02/2023 20:11:09: First log message for peer 1001
-12/02/2023 20:16:44: First log message for peer 1001
-12/02/2023 20:17:21: First log message for peer 1001
-12/02/2023 20:19:24: First log message for peer 1001
-12/02/2023 20:20:29: First log message for peer 1001
-12/02/2023 20:30:43: First log message for peer 1001
-12/02/2023 20:30:58: First log message for peer 1001
-12/02/2023 20:39:42: First log message for peer 1001
-12/02/2023 20:40:47: First log message for peer 1001
-12/02/2023 20:44:03: First log message for peer 1001
-12/02/2023 20:46:44: First log message for peer 1001
-12/02/2023 20:47:03: First log message for peer 1001
-12/02/2023 20:49:11: First log message for peer 1001
-12/02/2023 20:56:20: First log message for peer 1001
-12/02/2023 21:03:01: First log message for peer 1001
-12/02/2023 21:30:24: First log message for peer 1001
-12/02/2023 21:31:35: First log message for peer 1001
-12/02/2023 21:37:14: First log message for peer 1001
-12/02/2023 21:42:03: First log message for peer 1001
-12/02/2023 21:48:38: First log message for peer 1001
-12/02/2023 21:49:51: First log message for peer 1001
-12/02/2023 22:56:55: First log message for peer 1001
-12/02/2023 23:20:58: First log message for peer 1001
-12/02/2023 23:21:56: First log message for peer 1001
-12/02/2023 23:24:15: First log message for peer 1001
-12/02/2023 23:27:14: First log message for peer 1001
-12/02/2023 23:28:36: First log message for peer 1001
-12/02/2023 23:29:28: First log message for peer 1001
-12/02/2023 23:30:22: First log message for peer 1001
-12/02/2023 23:39:30: First log message for peer 1001
-12/02/2023 23:42:08: First log message for peer 1001
-12/02/2023 23:43:10: First log message for peer 1001
-12/02/2023 23:43:30: First log message for peer 1001
-12/02/2023 23:46:22: First log message for peer 1001
-12/02/2023 23:49:05: First log message for peer 1001
-12/03/2023 00:08:05: First log message for peer 1001
-12/03/2023 00:21:51: First log message for peer 1001
-12/03/2023 00:23:01: First log message for peer 1001
-12/03/2023 00:23:56: First log message for peer 1001
-12/03/2023 00:25:17: First log message for peer 1001
-12/03/2023 00:26:15: First log message for peer 1001
-12/03/2023 00:30:32: First log message for peer 1001
-12/03/2023 00:31:49: First log message for peer 1001
-12/03/2023 00:59:55: First log message for peer 1001
-12/03/2023 01:00:53: First log message for peer 1001
-12/03/2023 01:33:38: First log message for peer 1001
-12/03/2023 01:34:45: First log message for peer 1001
-12/03/2023 01:36:52: First log message for peer 1001
-12/03/2023 01:37:46: First log message for peer 1001
-12/03/2023 01:38:52: First log message for peer 1001
-12/03/2023 01:39:27: First log message for peer 1001
-12/03/2023 01:40:34: First log message for peer 1001
-12/03/2023 01:42:27: First log message for peer 1001
-12/03/2023 01:43:03: First log message for peer 1001
-12/03/2023 01:44:42: First log message for peer 1001
-12/03/2023 01:45:40: First log message for peer 1001
-12/03/2023 01:48:47: First log message for peer 1001
-12/03/2023 01:50:43: First log message for peer 1001
-12/03/2023 02:04:05: First log message for peer 1001
+12/03/2023 21:22:07: Initializing peer 1001
+12/03/2023 21:22:07: peer 1001 read commonblock file with: 
+perferred neighbor count: 2
+unchoking interval: 5
+optimistic unchoking interval: 15
+filename: cod.jpg
+fileszie: 158349
+piece size: 16384
+12/03/2023 21:22:07: peer 1001has peer info: 
+hostname: lin114-00.cise.ufl.edu
+port number: 3691
+has file: yes
+12/03/2023 21:22:07: First log message for peer 1001
+12/03/2023 21:22:11: Peer 1001 makes a connection to Peer 1002.
+12/03/2023 21:22:11: Peer 1001 is connected from Peer 1002.
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 0 from 1002. Now the number of pieces it has is 1
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 1 from 1002. Now the number of pieces it has is 2
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 2 from 1002. Now the number of pieces it has is 3
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 3 from 1002. Now the number of pieces it has is 4
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 4 from 1002. Now the number of pieces it has is 5
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 5 from 1002. Now the number of pieces it has is 6
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 6 from 1002. Now the number of pieces it has is 7
+12/03/2023 21:22:11: Peer 1001 has downloaded the piece 7 from 1002. Now the number of pieces it has is 8
+12/03/2023 21:22:11: Peer 1001 has downloaded the complete file.

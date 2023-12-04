@@ -10,8 +10,10 @@ public class peerProcess {
         
         PeerProcess peer = new PeerProcess(Integer.parseInt(args[0]));
 
+        
         peer.buildPeerProcess();
         peer.initializePeerProcess();
+       
         
         // peerProcess.startServer();
 

@@ -192,6 +192,26 @@ public class PeerProcess {
         }
     }
 
+    private void writeToFile(byte[] filePiece){
+        try{
+            FileWriter Filelogger = new FileWriter(peerLogDirectory+"/"+commonBlock.getFileName(), true);
+            BufferedWriter bw = new BufferedWriter(Filelogger);
+            PrintWriter out = new PrintWriter(bw);
+
+            //System.out.println("got a file piece of size "+filePiece.length +", first hundred chars to follow...");
+           // for(int i = 0; i<100;++i){
+           //                 System.out.print((char)filePiece[i]);
+          //              }
+            out.print(filePiece);
+            out.print('\n');
+            out.close();
+        }
+        catch (IOException e){
+            System.out.println("Error: ");
+            e.printStackTrace();
+        }
+    }
+
     public void logConnectToPeer(int peerIDOther){
         StringBuilder sb = new StringBuilder();
         sb.append("Peer ");
@@ -344,6 +364,20 @@ public class PeerProcess {
             System.out.println("Error in building peer log file: ");
             e.printStackTrace();
         }
+        try {
+            File logFile = new File(peerLogDirectory+"/"+commonBlock.getFileName());
+            if(logFile.createNewFile()){
+                System.out.println("Successfully created empty file for peer "+this.peerId);
+            }
+            else{
+                System.out.println("Failed to create file: empty file already exists for "+this.peerId);
+            }
+
+        }
+        catch(IOException e){
+            System.out.println("Error in building peer log file: ");
+            e.printStackTrace();
+        }
         writeToLog("First log message for peer "+this.peerId);
     }
 
@@ -416,6 +450,8 @@ public class PeerProcess {
         int fileSize = 0;
         int pieceSize = 0;
         String fileName = "";
+
+        writeToLog("Initializing peer "+this.peerId);
 
         File common = new File("Common.cfg");
 		if(common.exists())
@@ -507,6 +543,35 @@ public class PeerProcess {
 
 		this.setCommonBlock(new CommonBlock(prefNeighborCount,unchokeIntv,optmUnchokeIntv,fileName,fileSize,pieceSize));
 
+        StringBuilder commonBlockString = new StringBuilder();
+        commonBlockString.append("peer ");
+        commonBlockString.append(this.getPeerId());
+        commonBlockString.append(" read commonblock file with: \n");
+        commonBlockString.append("perferred neighbor count: ");
+        commonBlockString.append(prefNeighborCount);
+        commonBlockString.append('\n');
+
+        commonBlockString.append("unchoking interval: ");
+        commonBlockString.append(unchokeIntv);
+        commonBlockString.append('\n');
+
+        commonBlockString.append("optimistic unchoking interval: ");
+        commonBlockString.append(optmUnchokeIntv);
+        commonBlockString.append('\n');
+
+        commonBlockString.append("filename: ");
+        commonBlockString.append(fileName);
+        commonBlockString.append('\n');
+
+        commonBlockString.append("fileszie: ");
+        commonBlockString.append(fileSize);
+        commonBlockString.append('\n');
+
+        commonBlockString.append("piece size: ");
+        commonBlockString.append(pieceSize);
+
+        writeToLog(commonBlockString.toString());
+
 		File peerinfo = new File("PeerInfo.cfg");
 		this.setPeerInfoBlock(new ArrayList<PeerInfoBlock>());
 
@@ -581,6 +646,26 @@ public class PeerProcess {
                 thisPeer = b;
             }
         }
+
+        StringBuilder peerInfoString = new StringBuilder();
+        peerInfoString.append("peer ");
+        peerInfoString.append(this.peerId);
+        peerInfoString.append("has peer info: \n");
+
+        peerInfoString.append("hostname: ");
+        peerInfoString.append(thisPeer.getHostName());
+        peerInfoString.append('\n');
+
+         peerInfoString.append("port number: ");
+        peerInfoString.append(thisPeer.getPortNum());
+        peerInfoString.append('\n');
+
+         peerInfoString.append("has file: ");
+         if(thisPeer.getHasFile()) peerInfoString.append("yes");
+         else peerInfoString.append("no");
+
+
+        writeToLog(peerInfoString.toString());
 
         if (thisPeer == null) throw new Exception("Construction of peer process failed: could not match PeerID to one in the peer info list");
         else{
@@ -704,14 +789,18 @@ public class PeerProcess {
                 dout = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
                 
                 String str = new String(handshake.getPayload());
-         
+                
                 //dout.write(str + "\n"); // this can write a byte array
                 //dout.flush();
 
-                char[] charstr = str.toCharArray();
+                //char[] charstr = str.toCharArray();
 
-                dout.write(charstr);
-                dout.flush();
+                //dout.write(charstr);
+               // dout.flush();
+
+                byte[] buf = new byte[1024];
+               s.getOutputStream().write(handshake.getPayload());
+               s.getInputStream().read(buf,0,1);
                 // create a file reader to read alice.txt
                 FileReader fr = new FileReader("2mb.txt");
                 BufferedReader br = new BufferedReader(fr);
@@ -731,61 +820,76 @@ public class PeerProcess {
                 
                 ArrayList<byte[]> field = new ArrayList<byte[]>(); 
 
-                FileInputStream fis = new FileInputStream("alice.txt");
+                FileInputStream fis = new FileInputStream("cod.jpg");
                 int next = 0;
                 int i = 0;
-                while(true){
-                    byte[] temp = new byte[16384];
-                    next = fis.read(temp);
+                byte[] file = new byte[commonBlock.getFileSize()];
+                fis.read(file);
+                int beginning = 0;
+                int end = 0;
+                int startBuff=0;
+                while((i+1)*commonBlock.getPieceSize()<commonBlock.getFileSize()){
+                    startBuff = 0;
+                    beginning = i*commonBlock.getPieceSize();
+                    end = (i+1)*commonBlock.getPieceSize();
+                    byte[] temp = new byte[commonBlock.getPieceSize()];
+                        for(;beginning<end;beginning++){
+                            temp[startBuff] = file[beginning];
+                            ++startBuff;
+                        }
+                    
                     System.out.println("read " + i++ + " times");
                     if(next == -1){
                         break;
                     }
                     field.add(temp);
                 }
-
+                String message = "";
                 for(int j = 0; j < field.size(); ++j){
-                    String output = new String(field.get(j));
-                    System.out.println(j + ": " + output);
+                    System.out.println("byte array "+j+" has byte "+String.format("%02x", field.get(j)[0]) + " at location 0");
+                    s.getOutputStream().write(field.get(j));
+                    
+                    //message = new String(field.get(0));
+                    //dout.write(message);
                 }
                 fis.close();
 
                 int fieldsize = (int)Math.ceil(field.size() / 8);
                 int rem = field.size() % 8;
                 
-                char[] message = new char[5 + fieldsize];
+                // char[] message = new char[5 + fieldsize];
             
 
-                message[4] = '5';
+                // message[4] = '5';
 
-                for(int j = 6; j < 5 + fieldsize - 1; ++j){
-                    message[j] = 0xFF;
-                }
-                switch(rem){
-                    case 1:
-                        message[5 + fieldsize - 1] = 0x01;
-                        break;
-                    case 2:
-                        message[5 + fieldsize - 1] = 0x03;
-                        break;
-                    case 3:
-                        message[5 + fieldsize - 1] = 0x07;
-                        break;
-                    case 4:
-                        message[5 + fieldsize - 1] = 0x0F;
-                        break;
-                    case 5:
-                        message[5 + fieldsize - 1] = 0x1F;
-                        break;
-                    case 6:
-                        message[5 + fieldsize - 1] = 0x3F;
-                        break;
-                    case 7:
-                        message[5 + fieldsize - 1] = 0x7F;
-                        break;
-                }
+                // for(int j = 6; j < 5 + fieldsize - 1; ++j){
+                //     message[j] = 0xFF;
+                // }
+                // switch(rem){
+                //     case 1:
+                //         message[5 + fieldsize - 1] = 0x01;
+                //         break;
+                //     case 2:
+                //         message[5 + fieldsize - 1] = 0x03;
+                //         break;
+                //     case 3:
+                //         message[5 + fieldsize - 1] = 0x07;
+                //         break;
+                //     case 4:
+                //         message[5 + fieldsize - 1] = 0x0F;
+                //         break;
+                //     case 5:
+                //         message[5 + fieldsize - 1] = 0x1F;
+                //         break;
+                //     case 6:
+                //         message[5 + fieldsize - 1] = 0x3F;
+                //         break;
+                //     case 7:
+                //         message[5 + fieldsize - 1] = 0x7F;
+                //         break;
+                // }
 
-                dout.write(message);
+                
                 dout.flush();
                 //read in 16384 bytes of a file 
 
@@ -845,21 +949,38 @@ public class PeerProcess {
                     //connect to others existing
                     //for each existing, send a connection request with a new client socket
                     //start up a server socket to accept new connections
+
+                    int connectingPeerNum;
+                    if (peerId == 1001) connectingPeerNum = 1002;
+                    else connectingPeerNum = 1001;
+
                     s = ss.accept();
+                    logConnectToPeer(connectingPeerNum);
                     System.out.println("Client connected");
 
                     communicationSockets.add(s);
 
                     din = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                    s.getOutputStream().write(' ');
                     // din = new ByteArrayInputStream(new InputStreamReader(s.getInputStream()).toString().getBytes());
                     // TODO: get the id from the file
-                    int connectingPeerNum;
-                    if (peerId == 1001) connectingPeerNum = 1002;
-                    else connectingPeerNum = 1001;
+                    
+
+                    byte[] buf = new byte[1024];
+                    s.getInputStream().read(buf,0,buf.length);
+/*
+                    int connectedPeer = 0;
+                    for(int i = 28;i<32;++i){
+                        connectedPeer = (connectedPeer << 8) + (buf[i] & 0xFF);
+                    }
+                    */
+
+                    String hand = new String(buf);
 
                     System.out.println("Attempting to receive connection for peer: "+connectingPeerNum);
-                    System.out.println("Handshake is valid: " + validateHandshake(connectingPeerNum,din.readLine()));
-                    
+                    System.out.println("Handshake is valid: " + validateHandshake(connectingPeerNum,hand));
+
+                    logConnectedFromPeer(connectingPeerNum);
                     
 
                     // din.read(message);
@@ -871,12 +992,21 @@ public class PeerProcess {
                     // }
 
                     String str;
-                    while ( (str = din.readLine()) != null) {
-                        System.out.println("Received: " + str);
-                        messages.add(str);
+                    byte[] largeBuf = new byte[commonBlock.getPieceSize()];
+                    int read;
+                    while (true) {
+                        read = 0;
+                       // System.out.println("Received: " + str);
+                       s.getInputStream().read(largeBuf);
+                       System.out.println("recieve piece "+numberOfPieces);
+                       System.out.println("recieved byte array "+numberOfPieces+" has byte "+String.format("%02x", largeBuf[0]) + " at location 0");
+                        writeToFile(largeBuf);
+                        logRecCompletedDownload(connectingPeerNum,numberOfPieces++);
+                       // messages.add(str);
                         // System.out.println("Is this what I expected? " + validateHandshake(1001,str));
     
-                        if (str.equalsIgnoreCase("bye")) {
+                        if (numberOfPieces == commonBlock.getFileSize()/commonBlock.getPieceSize()-1) {
+                            logCompletedDownload();
                             
                             System.out.println("Client left");
                             break;
@@ -994,16 +1124,22 @@ public class PeerProcess {
             
             
         // }
-        
-        if (this.peerId == 1001) destPort = 6009;
-        if (this.peerId == 1002) destPort = 6008;
+        String other = "";
+        if (this.peerId == 1001){
+            destPort = 3692;
+            other = "lin114-01.cise.ufl.edu";
+        } 
+        if (this.peerId == 1002){
+             destPort = 3691;
+             other = "lin114-00.cise.ufl.edu";
+        }
     
         // Now that the user has signaled to start accepting connections, create the client
         // System.out.println("Enter destination port for client:");
         // int destPort = Integer.parseInt(in.readLine());
         
         System.out.println("Connecting to port " + destPort);
-        Socket socket = new Socket("localhost", destPort);
+        Socket socket = new Socket(other, destPort);
         Sender s = new Sender(socket);
         s.start(); // Start the client thread
         

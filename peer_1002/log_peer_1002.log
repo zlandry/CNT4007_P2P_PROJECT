@@ -1,85 +1,24 @@
-01/12/2023 13:00:55: First log message for peer 1002
-12/02/2023 18:08:55: First log message for peer 1002
-12/02/2023 18:41:11: First log message for peer 1002
-12/02/2023 18:45:15: First log message for peer 1002
-12/02/2023 18:52:45: First log message for peer 1002
-12/02/2023 19:03:00: First log message for peer 1002
-12/02/2023 19:04:16: First log message for peer 1002
-12/02/2023 19:05:59: First log message for peer 1002
-12/02/2023 19:06:11: First log message for peer 1002
-12/02/2023 19:21:44: First log message for peer 1002
-12/02/2023 19:23:17: First log message for peer 1002
-12/02/2023 19:26:23: First log message for peer 1002
-12/02/2023 19:27:08: First log message for peer 1002
-12/02/2023 19:29:18: First log message for peer 1002
-12/02/2023 19:32:21: First log message for peer 1002
-12/02/2023 19:33:10: First log message for peer 1002
-12/02/2023 19:34:07: First log message for peer 1002
-12/02/2023 19:35:01: First log message for peer 1002
-12/02/2023 19:37:41: First log message for peer 1002
-12/02/2023 19:38:45: First log message for peer 1002
-12/02/2023 19:39:22: First log message for peer 1002
-12/02/2023 19:42:19: First log message for peer 1002
-12/02/2023 19:47:34: First log message for peer 1002
-12/02/2023 19:48:12: First log message for peer 1002
-12/02/2023 19:50:01: First log message for peer 1002
-12/02/2023 19:51:46: First log message for peer 1002
-12/02/2023 20:09:35: First log message for peer 1002
-12/02/2023 20:11:14: First log message for peer 1002
-12/02/2023 20:16:46: First log message for peer 1002
-12/02/2023 20:17:23: First log message for peer 1002
-12/02/2023 20:19:31: First log message for peer 1002
-12/02/2023 20:20:25: First log message for peer 1002
-12/02/2023 20:30:49: First log message for peer 1002
-12/02/2023 20:30:55: First log message for peer 1002
-12/02/2023 20:39:39: First log message for peer 1002
-12/02/2023 20:40:45: First log message for peer 1002
-12/02/2023 20:44:01: First log message for peer 1002
-12/02/2023 20:46:43: First log message for peer 1002
-12/02/2023 20:47:02: First log message for peer 1002
-12/02/2023 20:49:09: First log message for peer 1002
-12/02/2023 20:56:18: First log message for peer 1002
-12/02/2023 21:03:00: First log message for peer 1002
-12/02/2023 21:30:19: First log message for peer 1002
-12/02/2023 21:31:28: First log message for peer 1002
-12/02/2023 21:37:10: First log message for peer 1002
-12/02/2023 21:42:00: First log message for peer 1002
-12/02/2023 21:48:34: First log message for peer 1002
-12/02/2023 21:49:44: First log message for peer 1002
-12/02/2023 22:56:46: First log message for peer 1002
-12/02/2023 23:21:05: First log message for peer 1002
-12/02/2023 23:21:52: First log message for peer 1002
-12/02/2023 23:24:17: First log message for peer 1002
-12/02/2023 23:27:20: First log message for peer 1002
-12/02/2023 23:28:38: First log message for peer 1002
-12/02/2023 23:29:31: First log message for peer 1002
-12/02/2023 23:30:25: First log message for peer 1002
-12/02/2023 23:39:33: First log message for peer 1002
-12/02/2023 23:42:10: First log message for peer 1002
-12/02/2023 23:43:33: First log message for peer 1002
-12/02/2023 23:46:26: First log message for peer 1002
-12/02/2023 23:49:11: First log message for peer 1002
-12/03/2023 00:08:09: First log message for peer 1002
-12/03/2023 00:21:56: First log message for peer 1002
-12/03/2023 00:23:05: First log message for peer 1002
-12/03/2023 00:23:59: First log message for peer 1002
-12/03/2023 00:25:19: First log message for peer 1002
-12/03/2023 00:26:18: First log message for peer 1002
-12/03/2023 00:30:37: First log message for peer 1002
-12/03/2023 00:31:51: First log message for peer 1002
-12/03/2023 01:00:06: First log message for peer 1002
-12/03/2023 01:00:55: First log message for peer 1002
-12/03/2023 01:33:46: First log message for peer 1002
-12/03/2023 01:34:47: First log message for peer 1002
-12/03/2023 01:36:55: First log message for peer 1002
-12/03/2023 01:37:52: First log message for peer 1002
-12/03/2023 01:38:56: First log message for peer 1002
-12/03/2023 01:39:31: First log message for peer 1002
-12/03/2023 01:40:38: First log message for peer 1002
-12/03/2023 01:42:31: First log message for peer 1002
-12/03/2023 01:43:05: First log message for peer 1002
-12/03/2023 01:44:47: First log message for peer 1002
-12/03/2023 01:45:43: First log message for peer 1002
-12/03/2023 01:48:53: First log message for peer 1002
-12/03/2023 01:50:45: First log message for peer 1002
-12/03/2023 02:04:07: First log message for peer 1002
+12/03/2023 21:21:28: Initializing peer 1002
+12/03/2023 21:21:28: peer 1002 read commonblock file with: 
+perferred neighbor count: 2
+unchoking interval: 5
+optimistic unchoking interval: 15
+filename: cod.jpg
+fileszie: 158349
+piece size: 16384
+12/03/2023 21:21:28: peer 1002has peer info: 
+hostname: lin114-00.cise.ufl.edu
+port number: 3692
+has file: no
+12/03/2023 21:21:28: First log message for peer 1002
+12/03/2023 21:22:08: Peer 1002 makes a connection to Peer 1001.
+12/03/2023 21:22:08: Peer 1002 is connected from Peer 1001.
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 0 from 1001. Now the number of pieces it has is 1
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 1 from 1001. Now the number of pieces it has is 2
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 2 from 1001. Now the number of pieces it has is 3
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 3 from 1001. Now the number of pieces it has is 4
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 4 from 1001. Now the number of pieces it has is 5
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 5 from 1001. Now the number of pieces it has is 6
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 6 from 1001. Now the number of pieces it has is 7
+12/03/2023 21:22:08: Peer 1002 has downloaded the piece 7 from 1001. Now the number of pieces it has is 8
+12/03/2023 21:22:08: Peer 1002 has downloaded the complete file.
