@@ -20,7 +20,7 @@ Video Link: [Link](https://www.youtube.com/)
 - 3c) Not interested messages are incomplete, but partially implemented.
 - 3d) Interested messages are incomplete, but partially implemented. 
 - 3e) Peers send pieces during exchange.
-- 4) The program can shutdown correctly.
+- 4a) The program can shutdown correctly.
 ## What was not completed:
 - 2c) Peers do not send "interested" or "not interested" - file transfer just begins. 
 - 2d) The program does not send choke and unchoke messages on given intervals.
